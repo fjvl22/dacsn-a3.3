@@ -1,11 +1,46 @@
 services:
   tienda:
-
+    imge: prestashop/prestashop:8.2
+    environment:
+      PS_INSTALL_AUTO: 1
+      PS_LANGUAGE: es
+      PS_COUNTRY: ES
+      PS_DEMO_MODE: 0
+      DB_SERVER: bd
+      DB_NAME: ${DB_NAME:-prestashop}
+      DB_USER: ${DB_NAME:-prestashopdbuser}
+      DB_PASSWD: ${DB_NAME:-prestashopdbpass}
+    volumes:
+      - ficherosTienda:/var/www/html
+    networks:
+    ports:
+      - ${PORT:-8080}:80"
+    depends_on:
+    restart:
   bd:
-
+    imge: mariadb:11.8
+    environment:
+    volumes:
+      - datos-bd:/var/lib/mysql
+    networks:
+    ports:
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    depends_on:
+    restart:
   correo:
-
+    imge: 
+    environment:
+    volumes:
+    networks:
+    ports:
+    depends_on:
+    restart:
 volumes:
-
+  ficherosTienda:
 networks:
   interna:
