@@ -2,27 +2,40 @@ services:
   tienda:
     imge: prestashop/prestashop:8.2
     environment:
-      PS_INSTALL_AUTO: 1
-      PS_LANGUAGE: es
-      PS_COUNTRY: ES
-      PS_DEMO_MODE: 0
-      DB_SERVER: bd
-      DB_NAME: ${DB_NAME:-prestashop}
-      DB_USER: ${DB_NAME:-prestashopdbuser}
-      DB_PASSWD: ${DB_NAME:-prestashopdbpass}
+      PS_INSTALL_AUTO=1
+      PS_LANGUAGE=es
+      PS_COUNTRY=ES
+      PS_DEMO_MODE=0
+      DB_SERVER=bd
+      DB_NAME=${DB_NAME:-prestashop}
+      DB_USER=${DB_NAME:-prestashopdbuser}
+      DB_PASSWD=${DB_NAME:-prestashopdbpass}
+      PS_FOLDER_ADMIN=${PS_FOLDER_ADMIN:-admin-tienda}
+      PS_FOLDER_INSTALL=${PS_FOLDER_INSTALL:-install-tienda}
+      PS_DOMAIN=${PS_DOMAIN}
     volumes:
       - ficherosTienda:/var/www/html
     networks:
+      - interna
     ports:
       - ${PORT:-8080}:80"
     depends_on:
-    restart:
+      bd:
+        condition: service_healthy
+      correo:
+        condition: service_started
+    restart: unless-stopped
   bd:
     imge: mariadb:11.8
     environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpass}
+      MYSQL_DATABASE: ${DB_NAME:-prestashop}
+      MYSQL_USER: ${DB_NAME:-prestashopdbuser}
+      MYSQL_PASSWORD: ${DB_NAME:-prestashopdbpass}
     volumes:
       - datos-bd:/var/lib/mysql
     networks:
+      - interna
     ports:
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
@@ -30,16 +43,19 @@ services:
       timeout: 3s
       retries: 10
       start_period: 30s
-    depends_on:
-    restart:
+    restart: unless-stopped
   correo:
-    imge: 
-    environment:
-    volumes:
+    imge: axllent/mailpit:1.32
     networks:
+      - interna
     ports:
-    depends_on:
-    restart:
+      - ${PUERTO_CORREO:-8025}:8025
+    restart: unless-stopped
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - ${PUERTO_ADMINER:-8081}:8081
 volumes:
   ficherosTienda:
 networks:
