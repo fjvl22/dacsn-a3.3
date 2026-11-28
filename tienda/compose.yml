@@ -8,7 +8,7 @@ services:
       PS_DEMO_MODE: 0
       DB_SERVER: bd
       DB_NAME: ${DB_NAME:-prestashop}
-      DB_USER: ${USER:-prestashopdbuser}
+      DB_USER: ${DB_USER:-prestashopdbuser}
       DB_PASSWD: ${DB_PASSWD:-prestashopdbpass}
       PS_FOLDER_ADMIN: ${PS_FOLDER_ADMIN:-admin-tienda}
       PS_FOLDER_INSTALL: ${PS_FOLDER_INSTALL:-install-tienda}
@@ -60,7 +60,7 @@ services:
     networks:
       - interna
     ports:
-      - ${PUERTO_ADMINER:-8081}:8081
+      - ${PUERTO_ADMINER:-8081}:8080
     profiles: ["herramientas"]
 volumes:
   ficherosTienda:
